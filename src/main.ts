@@ -1,99 +1,89 @@
-import {App, Editor, MarkdownView, Modal, Notice, Plugin} from 'obsidian';
-import {DEFAULT_SETTINGS, MyPluginSettings, SampleSettingTab} from "./settings";
+import { Plugin, TFile } from 'obsidian';
+import { renderPayload } from './processor';
+import { PayloadSettings, DEFAULT_SETTINGS, PayloadSettingTab } from './settings';
+import { PayloadModal } from './modal';
+import { syncMdToTxt, syncTxtToMd } from './sync';
 
-// Remember to rename these classes and interfaces!
+export default class PayloadPlugin extends Plugin {
+    settings: PayloadSettings;
 
-export default class MyPlugin extends Plugin {
-	settings: MyPluginSettings;
+    async onload() {
+        console.log('✅ Payload Plugin is starting...');
+        
+        await this.loadSettings();
+        this.addSettingTab(new PayloadSettingTab(this.app, this));
+        this.applySettings();
 
-	async onload() {
-		await this.loadSettings();
+        // Register vault events for file binding sync
+        this.registerEvent(
+            this.app.vault.on('modify', (file) => {
+                if (file instanceof TFile) {
+                    if (file.extension === 'md') {
+                        syncMdToTxt(this.app, this.settings, file);
+                    } else if (file.extension === 'txt') {
+                        syncTxtToMd(this.app, this.settings, file);
+                    }
+                }
+            })
+        );
 
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
-		});
+        // Ribbon Icon
+        this.addRibbonIcon('box', '添加 Payload 卡片', () => {
+            new PayloadModal(this.app, this.settings).open();
+        });
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status bar text');
+        // Command
+        this.addCommand({
+            id: 'insert-payload-card',
+            name: '插入 Payload 卡片',
+            editorCallback: (editor, view) => {
+                new PayloadModal(this.app, this.settings, editor).open();
+            }
+        });
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-modal-simple',
-			name: 'Open modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'replace-selected',
-			name: 'Replace selected content',
-			editorCallback: (editor: Editor, view: MarkdownView) => {
-				editor.replaceSelection('Sample editor command');
-			}
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-modal-complex',
-			name: 'Open modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+        // Register the markdown code block processor
+        this.registerMarkdownCodeBlockProcessor("payload", (source, el, ctx) => {
+            try {
+                renderPayload(this.app, this.settings, source, el, ctx);
+            } catch (err) {
+                console.error("❌ Error rendering payload block:", err);
+            }
+        });
+        
+        console.log('✅ Payload Plugin loaded successfully!');
+    }
 
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-				return false;
-			}
-		});
+    onunload() {
+        console.log('🛑 Payload Plugin unloaded.');
+        document.body.style.removeProperty('--payload-custom-accent');
+    }
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+    async loadSettings() {
+        this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+    }
 
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			new Notice("Click");
-		});
+    async saveSettings() {
+        await this.saveData(this.settings);
+    }
 
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
-
-	}
-
-	onunload() {
-	}
-
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData() as Partial<MyPluginSettings>);
-	}
-
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		const {contentEl} = this;
-		contentEl.empty();
-	}
+    applySettings() {
+        if (this.settings.useCustomColor && this.settings.customColor) {
+            // Convert Hex to RGB for color-mix compatibility
+            const hex = this.settings.customColor;
+            let r = 8, g = 109, b = 221; // fallback
+            if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
+                let c = hex.substring(1).split('');
+                if (c.length === 3) {
+                    c = [c[0]||'0', c[0]||'0', c[1]||'0', c[1]||'0', c[2]||'0', c[2]||'0'];
+                }
+                const num = parseInt(c.join(''), 16);
+                r = (num >> 16) & 255;
+                g = (num >> 8) & 255;
+                b = num & 255;
+            }
+            document.body.style.setProperty('--payload-custom-accent', `${r}, ${g}, ${b}`);
+        } else {
+            document.body.style.removeProperty('--payload-custom-accent');
+        }
+    }
 }

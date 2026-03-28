@@ -1,8 +1,353 @@
-/*
+/* Container */
+.payload-container {
+    display: flex;
+    flex-direction: column;
+    margin: 12px 0;
+    width: 100%;
+    max-width: 100%;
+    --current-accent: var(--interactive-accent);
+}
+body[style*="--payload-custom-accent"] .payload-container {
+    --current-accent: rgb(var(--payload-custom-accent));
+}
 
-This CSS file will be included with your plugin, and
-available in the app when your plugin is enabled.
+/* Card -> Callout style */
+.payload-card {
+    background-color: color-mix(in srgb, var(--current-accent) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--current-accent) 15%, transparent);
+    border-left: 4px solid var(--current-accent);
+    border-radius: var(--callout-radius, 4px);
+    padding: 12px 16px;
+    color: var(--text-normal);
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+    overflow-wrap: break-word;
+}
 
-If your plugin does not need CSS, delete this file.
+/* Header */
+.payload-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 6px; /* Reduced from 10px */
+    gap: 12px;
+}
+.payload-title-area {
+    display: flex;
+    flex-direction: column;
+    gap: 2px; /* Reduced from 4px */
+}
+.payload-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.payload-step {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: color-mix(in srgb, var(--current-accent) 10%, transparent);
+    border: 2px solid var(--current-accent);
+    color: var(--current-accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+.payload-title {
+    font-weight: 600;
+    font-size: var(--callout-title-size, 1em);
+    color: var(--callout-title-color, var(--text-normal));
+    line-height: var(--line-height-tight);
+}
+.payload-desc {
+    font-size: var(--font-ui-medium);
+    color: var(--text-muted);
+    line-height: var(--line-height-normal);
+    word-wrap: break-word;
+    word-break: break-word;
+    white-space: normal;
+}
+.payload-desc p {
+    margin: 0 0 2px 0; /* Reduced from 4px */
+}
+.payload-desc > *:first-child {
+    margin-top: 0 !important;
+}
+.payload-desc > *:last-child {
+    margin-bottom: 0 !important;
+}
+.payload-desc ul, .payload-desc ol {
+    margin-block-start: 2px !important;
+    margin-block-end: 2px !important;
+    padding-inline-start: 20px;
+}
+.payload-desc li {
+    margin-bottom: 0;
+}
 
-*/
+/* Scope Badge */
+.payload-scope {
+    background-color: color-mix(in srgb, var(--current-accent) 15%, transparent);
+    border: 1px solid color-mix(in srgb, var(--current-accent) 20%, transparent);
+    padding: 2px 8px;
+    border-radius: var(--radius-s);
+    font-size: var(--font-ui-smaller);
+    display: flex;
+    align-items: center;
+    gap: var(--size-4-1, 4px);
+    color: var(--current-accent);
+    white-space: nowrap;
+}
+.payload-scope-icon svg {
+    width: 14px;
+    height: 14px;
+    stroke-width: 2px;
+}
+
+/* Code block inside */
+.payload-code-wrapper {
+    margin-bottom: 0; /* Set to 0 to make badge sit tightly */
+    width: 100%;
+    max-width: 100%;
+}
+
+.payload-code-block {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 0;
+    z-index: 1;
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    position: relative;
+    overflow: hidden;
+}
+
+.payload-code-scroll-area {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 0 12px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    min-height: 32px; /* Reduced from 56px to make it more compact */
+    background-color: transparent !important;
+}
+
+/* 
+ * The Secret Sauce for Centering: display: contents 
+ * This makes the intermediate div disappear for layout purposes,
+ * letting the 'pre' become the direct centered child of the flex container.
+ */
+.payload-code-scroll-area .markdown-rendered {
+    display: contents !important;
+}
+
+.payload-code-scroll-area pre,
+.payload-code-scroll-area code {
+    margin: 0 !important;
+    padding: 4px 0 !important; /* Reduced from 8px for tighter spacing */
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    display: block !important;
+}
+
+.payload-code-scroll-area code {
+    font-size: 0.9em !important;
+    line-height: 1.4 !important;
+    white-space: pre-wrap !important;
+    word-break: break-all !important;
+    color: var(--code-normal) !important;
+    width: 100%;
+    text-align: left;
+}
+
+/* Language Badge moved to bottom left outside the white block, in footer */
+.payload-code-lang {
+    font-size: 10px;
+    color: var(--text-on-accent, white) !important;
+    background-color: var(--current-accent) !important;
+    padding: 2px 8px;
+    border-radius: var(--radius-s);
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--font-monospace);
+    font-weight: 600;
+    user-select: none;
+    pointer-events: none;
+    box-shadow: var(--shadow-s);
+    height: 24px;
+}
+
+/* Force hide all Obsidian built-in buttons */
+.payload-code-block button,
+.payload-code-block .copy-code-button {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
+
+/* Syntax Parse Area */
+.payload-syntaxes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+    gap: 8px 16px;
+    margin-bottom: 12px;
+    border-top: 1px dashed color-mix(in srgb, var(--current-accent) 20%, transparent);
+    padding-top: 12px;
+    width: 100%;
+}
+.payload-syntax-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    min-width: 0;
+}
+.payload-syntax-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 80px;
+    max-width: 140px;
+    flex-shrink: 0;
+}
+.payload-syntax-code {
+    background-color: color-mix(in srgb, var(--current-accent) 15%, transparent);
+    border-left: 3px solid var(--current-accent);
+    padding: 3px 8px;
+    border-radius: var(--radius-s);
+    color: var(--text-normal);
+    font-family: var(--font-monospace);
+    font-size: var(--font-ui-small);
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-weight: 500;
+}
+.payload-syntax-type {
+    background-color: var(--current-accent);
+    color: var(--text-on-accent, white);
+    padding: 2px 6px;
+    border-radius: var(--radius-s);
+    font-size: var(--font-ui-smaller);
+    align-self: flex-start;
+    font-weight: 600;
+}
+.payload-syntax-right {
+    flex-grow: 1;
+    color: var(--text-normal);
+    font-size: var(--font-ui-small);
+    line-height: var(--line-height-normal);
+    padding-top: 4px;
+    min-width: 0;
+    word-break: break-word;
+}
+
+/* Footer buttons and layout */
+.payload-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0; /* Set to 0 to make badge sit tightly against code block */
+}
+.payload-footer-buttons {
+    display: flex;
+    gap: 8px;
+}
+.payload-btn {
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    padding: 4px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--text-muted);
+    font-size: var(--font-ui-small);
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-s);
+    height: 30px;
+}
+.payload-btn:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+    border-color: var(--background-modifier-border-hover);
+}
+
+/* Copy Dropdown Menu */
+.payload-copy-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.payload-copy-menu {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    right: 0;
+    background-color: var(--background-primary);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    box-shadow: var(--shadow-l);
+    z-index: 100;
+    min-width: 120px;
+    margin-bottom: 5px;
+    overflow: hidden;
+    padding: 4px;
+}
+
+.payload-copy-dropdown:hover .payload-copy-menu {
+    display: block;
+}
+
+.payload-copy-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+    transition: all 0.2s ease;
+    border-radius: var(--radius-s);
+    white-space: nowrap;
+}
+
+.payload-copy-item:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+.payload-copy-item-icon {
+    display: flex;
+    align-items: center;
+}
+
+.payload-copy-item-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+.payload-btn-icon {
+    display: flex;
+    align-items: center;
+}
+.payload-btn-icon svg {
+    width: 14px;
+    height: 14px;
+}
+
+/* Modal sections */
+.payload-modal-section {
+    margin-top: 24px;
+    margin-bottom: 8px;
+    border-bottom: 1px solid var(--background-modifier-border);
+    padding-bottom: 4px;
+}
