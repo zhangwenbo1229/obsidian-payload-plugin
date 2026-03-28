@@ -1,90 +1,69 @@
-# Obsidian Sample Plugin
+# Obsidian Payload Cards 插件
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+![Obsidian Payload Cards](https://img.shields.io/badge/Obsidian-Plugin-blueviolet)
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+**Payload Cards** 是一款专为 Obsidian 设计的社区插件。它可以将晦涩的代码片段（如渗透测试 Payload、脚本代码、常用命令）渲染成美观、结构化的交互式卡片，并提供了极其方便的复制选项和文件双向同步功能。
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+## 🌟 核心功能
 
-## First time developing plugins?
+1. **美观的交互式卡片渲染**
+   使用自定义的 ` ```payload ` 代码块，将普通的 Markdown 文本解析为带有标题、步骤、平台图标（Win/Linux/Mac/Web）和独立代码区的卡片。
+2. **强大的语法解析面板**
+   在代码块内使用简单的微语法，即可为代码中的各个部分提供详细的语法说明。用户点击“语法解析”按钮即可展开查看。
+3. **全局变量自动替换**
+   支持在设置中定义全局变量（如 `{{ip}}` -> `192.168.1.1`）。在复制卡片中的代码时，插件会在后台自动将代码中的占位符替换为您设定的真实值，极大提升工作效率。
+4. **MD ↔ TXT 智能双向绑定同步**
+   允许将包含卡片的 `.md` 笔记文件与纯代码的 `.txt` 文件建立绑定关系。
+   - MD 文件中的卡片代码会自动按行写入 TXT 文件，供其他脚本或工具直接读取使用。
+   - TXT 文件中的单行代码变动（包括修改、乱序移动、新增行）会自动、智能地同步回 MD 文件，并最大程度地**保留原有卡片的标题和描述等元数据**。
 
-Quick starting guide for new plugin devs:
+## 📝 语法指南
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+在 Obsidian 中创建一个 ` ```payload ` 代码块，并使用以下微语法来构建您的卡片：
 
-## Releasing new releases
-
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
-
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
-
-## Adding your plugin to the community plugin list
-
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
-
-## How to use
-
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
-
-## Manually installing the plugin
-
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
-
-## Improve code quality with eslint
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
-
-## Funding URL
-
-You can include funding URLs where people who use your plugin can financially support it.
-
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
-
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
+```text
+```payload
+[1]
+# 这是一个标题
+> 这是关于这段 Payload 的详细描述。
+@ Linux
+$ bash
+? 参数 | -v | 开启详细输出模式
+? 目标 | 127.0.0.1 | 扫描的目标 IP
+nmap -v 127.0.0.1
+```
 ```
 
-If you have multiple URLs, you can also do:
+### 符号说明：
+- `[步骤号]`：显示卡片的序号（例如 `[1]`）。
+- `# 标题`：卡片的主标题。
+- `> 描述`：对代码的说明，支持多行。
+- `@ 平台`：卡片的适用环境（如 `win`, `linux`, `mac`, `web`），会自动匹配对应的图标。
+- `$ 语言`：代码高亮语言（如 `bash`, `python`, `java`），不填默认为 `plaintext`。
+- `? 类型 | 代码片段 | 解析说明`：定义语法解析行，可定义多个。
+- **其余部分**：将被视为真正的代码主体，渲染在中间的滚动区域内。
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
+## ⚙️ 设置选项
+
+进入 **设置 -> 社区插件 -> Payload Cards** 进行配置：
+
+- **主题颜色**：自定义卡片的主色调（覆盖 Obsidian 的默认强调色）。
+- **代码语言**：自定义编辑面板中可选的语言列表。
+- **全局变量**：添加您的占位符（如 `{{url}}`）及其实际值。
+- **文件绑定**：添加 `MD 文件路径` 和 `TXT 文件路径` 来开启双向同步。
+
+## 🛠️ 安装与开发
+
+### 手动安装
+1. 从 GitHub [Releases](../../releases) 页面下载最新的 `main.js`, `manifest.json`, `styles.css`。
+2. 将这三个文件放入您 Obsidian 仓库的 `.obsidian/plugins/obsidian-payload-plugin/` 目录中。
+3. 在 Obsidian 设置中启用该插件。
+
+### 本地开发
+```bash
+npm install
+npm run dev # 开启热编译模式
 ```
 
-## API Documentation
-
-See https://docs.obsidian.md
+## 🚀 自动发布流程
+本项目配置了 GitHub Actions。开发者只需更新 `manifest.json` 的版本号，并在 GitHub 推送对应的 Tag（例如 `1.0.0`，注意不需要 `v` 前缀），Action 会自动编译并创建包含所有产物的 Release。
