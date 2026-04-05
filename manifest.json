@@ -1,7 +1,7 @@
 {
 	"id": "obsidian-payload-plugin",
 	"name": "Payload Cards",
-	"version": "1.0.0",
+	"version": "1.0.2",
 	"minAppVersion": "0.15.0",
 	"description": "Renders beautiful payload cards with metadata and syntax explanations.",
 	"author": "Obsidian User",

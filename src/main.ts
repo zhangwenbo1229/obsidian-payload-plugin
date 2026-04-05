@@ -1,8 +1,7 @@
-import { Plugin, TFile } from 'obsidian';
+import { Plugin } from 'obsidian';
 import { renderPayload } from './processor';
 import { PayloadSettings, DEFAULT_SETTINGS, PayloadSettingTab } from './settings';
 import { PayloadModal } from './modal';
-import { syncMdToTxt, syncTxtToMd } from './sync';
 
 export default class PayloadPlugin extends Plugin {
     settings: PayloadSettings;
@@ -13,19 +12,6 @@ export default class PayloadPlugin extends Plugin {
         await this.loadSettings();
         this.addSettingTab(new PayloadSettingTab(this.app, this));
         this.applySettings();
-
-        // Register vault events for file binding sync
-        this.registerEvent(
-            this.app.vault.on('modify', (file) => {
-                if (file instanceof TFile) {
-                    if (file.extension === 'md') {
-                        syncMdToTxt(this.app, this.settings, file);
-                    } else if (file.extension === 'txt') {
-                        syncTxtToMd(this.app, this.settings, file);
-                    }
-                }
-            })
-        );
 
         // Ribbon Icon
         this.addRibbonIcon('box', '添加 Payload 卡片', () => {
